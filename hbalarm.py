@@ -21,7 +21,7 @@ def init():
 
 def fini():
     with open("count.txt", "a+") as handler:
-        handler.truncate()
+        handler.truncate(0)
         line = "{}".format(hbcount)
         handler.write()
     
@@ -36,7 +36,7 @@ def alarm():
     line = '{}-{}-{} {}:{}:{} 第{}个红包'.format(now.year,now.month, now.day, now.hour, now.minute, now.second, hbcount)
     
     log_line(line)
-    if os.name == 'Darwin':
+    if os.name == 'posix':
         line = 'say "第{}个红包，抢抢抢！"'.format(hbcount)
         print(line)
         os.system(line)
