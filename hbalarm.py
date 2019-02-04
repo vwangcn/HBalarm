@@ -1,28 +1,57 @@
+import os
+from datetime import *
+import pygame
 import itchat
 
+hbcount = 20
+
+def log_line(line):
+    print(line)
+    with open("log.txt", "a+", encoding="utf-8") as log:
+        log.write(line+"\n")
+
+def init():
+    global hbcount
+    try:
+        with open("count.txt") as handler:
+            line = handler.readline()
+        hbcount = int(line)
+    except:
+        hbcount = 20
+
+def fini():
+    with open("count.txt", "a+") as handler:
+        handler.truncate()
+        line = "{}".format(hbcount)
+        handler.write()
+    
+def test():
+    alarm()
 
 def alarm():
-    # Windows嗡鸣声
-    #import winsound
-    #winsound.Beep( 1000, 3000)
-    # Mac语音
-    #import os 
-    #os.system( 'say "有人发红包了，赶紧去抢啊！"')
-    # 播放MP3
-    import pygame 
+    global hbcount
+
+    hbcount += 1
+    now = datetime.today()
+    line = '{}-{}-{} {}:{}:{} 第{}个红包'.format(now.year,now.month, now.day, now.hour, now.minute, now.second, hbcount)
+    
+    log_line(line)
+    if os.name == 'Darwin':
+        line = 'say "第{}个红包，抢抢抢！"'.format(hbcount)
+        print(line)
+        os.system(line)
+    #if
     pygame.mixer.init() 
     track = pygame.mixer.music.load('alarm.mp3') 
     pygame.mixer.music.play()
-    pygame.time.delay(4200)
 
 @itchat.msg_register('Note', isFriendChat=True, isGroupChat=True)
 def get_note(msg):
     if '红包' in msg['Text']: 
-        print(msg)
-        print( 'note:',msg[ 'Text']) 
-        alarm() # 自定义提醒
+        alarm() 
 
 def main():
+    init()
     itchat.auto_login(hotReload= True)
     try:
         itchat.run()
@@ -30,9 +59,7 @@ def main():
         print(e)
     finally:
         itchat.logout()
-    
-def test():
-    alarm()
+        fini()
 
 if __name__ == "__main__":
     main()
